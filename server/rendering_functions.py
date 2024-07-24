@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Circle
 from matplotlib.animation import FuncAnimation
 from orbital_functions import SolveOrbit, solve_bisection, OrbitLength
+import datetime
 
 SECONDS = 365 * 60 * 60 * 24  # Seconds per year
 
@@ -38,7 +39,7 @@ def PlanetOrbit(Name, M, m):
 # Using SolveOrbit function to get the angle and distance from Sun, which is used to determine the x,y coordinates of the object at time t
 def DrawPlanet(name, M, m, t):
     SCALE = 1e9
-    print(name)
+
     theta, r = SolveOrbit(M * SCALE, m * SCALE, t)
     x = -r * cos(theta) / SCALE
     y = r * sin(theta) / SCALE
@@ -49,6 +50,8 @@ def DrawPlanet(name, M, m, t):
 
 # Animation to update the Earth every second
 def update(frame):
-    planet = DrawPlanet("Earth", 152.1, 147.1, frame / SECONDS * SECONDS)
-    planet.set_label("Earth")
-    return [planet]
+    earth = DrawPlanet("Earth", 152.1, 147.1, frame)
+    mars = DrawPlanet("Mars", 249.1, 206.7, frame)
+    earth.set_label("Earth")
+    mars.set_label("Mars")
+    return [earth, mars]

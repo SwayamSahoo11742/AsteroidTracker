@@ -58,8 +58,6 @@ def SolveOrbit(M, m, t):
     p = m * (1 + e)  # Semi-latus rectum
     a = p / (1 - e**2)  # Semi-major axis
     P = sqrt(a**3 / mu)  # Orbital period
-    print(P)
-
     # Mean anomaly
     M = (t / P) % (2 * pi)
 
