@@ -54,4 +54,8 @@ def update(frame):
     mars = DrawPlanet("Mars", 249.1, 206.7, frame)
     earth.set_label("Earth")
     mars.set_label("Mars")
-    return [earth, mars]
+    j = DrawPlanet("jupiter", 817.0, 741.0, frame)
+    venus = DrawPlanet("venus", 108.9, 107.5, frame)
+    j.set_label("Jupiter")
+    venus.set_label("venus")
+    return [earth, mars, j, venus]
