@@ -1,3 +1,5 @@
+/* Includes collection of functions and classes related to the math aspect of finding planetary positions, three main classes include Asteroid, Celestial, Earth*/
+
 // Helper conversion functions as js Math.cos and Math.sin functions are in rads
 
 function radians(degrees)
@@ -179,3 +181,85 @@ export class Earth{
 
 }
 
+  // Julian Date given a date
+export const getCurrentD = (t) => {
+    const now = t;
+    const julianDate = now / 86400000 + 2440587.5;
+    const d = julianDate - 2451543.5;
+
+    return d;
+  }
+
+export const orbitalData = {
+    Mercury : new Celestial(48.3313, 3.24587E-5,
+      7.0047, 5.00E-8,
+      29.1241, 1.01444E-5,
+      0.387098, 0,
+      0.205635, 5.59E-10,
+      168.6562, 4.0923344368,
+      0xdabaff, "Mercury.jpg", true,
+      0.002440),
+    
+    Venus : new Celestial(
+      76.6799, 2.46590E-5,
+      3.3946, 2.75E-8,
+      54.8910, 1.38374E-5,
+      0.723330, 0,
+      0.006773, - 1.302E-9,
+      48.0052, 1.6021302244,
+      0xfa9a41, "Venus.jpg", true,
+      0.006052),
+      Earth: new Earth(),
+  
+      Mars: new Celestial(
+        49.5574, 2.11081E-5,
+        1.8497, -1.78E-8,
+        286.5016, 2.92961E-5,
+        1.523688, 0,
+        0.093405, 2.516E-9,
+        18.6021, 0.5240207766,
+        0xe0521f, "Mars.jpg", true,
+        0.003396),
+  
+      Jupiter : new Celestial(
+        100.4542, 2.76854E-5,
+        1.3030, -1.557E-7,
+        273.8777, 1.64505E-5,
+        5.20256, 0,
+        0.048498, 4.469E-9,
+        19.8950, 0.0830853001,
+        0xf2a285, "Jupiter.jpg", true,
+        0.071492),
+      
+      Saturn : new Celestial(
+        113.6634, 2.38980E-5,
+        2.4886, -1.081E-7,
+        339.3939, 2.97661E-5,
+        9.55475, 0,
+        0.055546, -9.499E-9,
+        316.9670, 0.0334442282,
+        0xe0d665, "Saturn.jpg", true,
+        0.060268),
+      
+      Uranus : new Celestial(
+        74.0005, 1.3978E-5,
+        0.7733, 1.9E-8,
+        96.6612, 3.0565E-5,
+        19.18171, -1.55E-8,
+        0.047318, 7.45E-9,
+        142.5905, 0.011725806,
+        0x8ee6e4, "Uranus.jpg", true,
+        0.025559
+      ),
+      
+      Neptune : new Celestial(
+        131.7806, 3.0173E-5,
+        1.7700, -2.55E-7,
+        272.8461, 6.027E-6,
+        30.05826, 3.313E-8,
+        0.008606, 2.15E-9,
+        260.2471, 0.005995147,
+        0x4534fa, "Neptune.jpg", true,
+        0.024764
+      )
+  }
