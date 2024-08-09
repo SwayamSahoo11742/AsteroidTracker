@@ -1,0 +1,58 @@
+/* Removing default styles */
+#timeline{
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+
+/* Track */
+/* chrome, safari, edge */
+#timeline::-webkit-slider-runnable-track {
+    background: white;
+    height: 0.5rem;
+  }
+  
+/* Firefox */
+#timeline::-moz-range-track {
+    background-color: white;
+    height: 0.5rem;
+}
+
+
+
+/* Thumb */
+/* Chromium, Safari, Edge */
+#timeline::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    background: white;
+    border-radius: 0;
+    clip-path: polygon(50% 100%, 0 0, 100% 0); /* Create a diamond shape */
+    cursor: pointer;
+    margin-top: 5px; /* Align thumb with track */
+}
+
+/* Firefox */
+#timeline::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    background: white;
+    border-radius: 0;
+    clip-path: polygon(50% 100%, 0 0, 100% 0); /* Create a diamond shape */
+    cursor: pointer;
+    margin-top: -8px; /* Align thumb with track */
+}
+
+/* Making year labels line up */
+.years{
+    width: 110%;
+    transform: translateX(-5%);
+}
+.years li {
+    display: inline-block;
+    text-align: center;
+    width: 9.090909090909090%;
+  }

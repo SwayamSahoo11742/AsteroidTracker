@@ -5,7 +5,7 @@ import { createSun, drawBody, orbitalCurve, updateBody, updateCurve } from "./Bo
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Asteroid, orbitalData, Earth, getCurrentD } from "./BodyPosition";
 import asteroids from "./asteroids.json"
-const AsteroidTracker = ({ speed, setViewDate}) => {
+const AsteroidTracker = ({ speed, setViewDate, t, setT}) => {
     var celestials = orbitalData;
     const mountRef = useRef(null);
     const datenow = new Date();
@@ -13,7 +13,7 @@ const AsteroidTracker = ({ speed, setViewDate}) => {
     const KM = 149.6;
 
     // Declare t outside of the useEffect so that it persists across re-renders
-    const [t, setT] = useState(0);
+    // const [t, setT] = useState(0);
     const bodiesRef = useRef({});
     const intervalRef = useRef(null);
 
@@ -27,7 +27,7 @@ const AsteroidTracker = ({ speed, setViewDate}) => {
     }
 
     const createAsteroids = (lst) => {
-        for(let i = 0; i < 100; i++){
+        for(let i = 0; i < 1000; i++){
           let data = lst[i];
           celestials[n2_(data.full_name)] = new Asteroid(Number(data.epoch), Number(data.om), Number(data.i), Number(data.w), Number(data.a), Number(data.e), Number(data.ma), Number(data.per), n2_(data.full_name), 0xf0f0f0, "asteroid.jpg", false, 1);
         }
@@ -107,7 +107,7 @@ const AsteroidTracker = ({ speed, setViewDate}) => {
 
         // Animation interval (runs when speed changes)
         intervalRef.current = setInterval(() => {
-            setT((prevT) => prevT + Number(speed)) ; // Update t using setT so it persists
+            setT((prevT) => prevT + Number(speed)); // Update t using setT so it persists
             // speed = speed*100 days/s
             setViewDate(addDays(datenow,t))
 
