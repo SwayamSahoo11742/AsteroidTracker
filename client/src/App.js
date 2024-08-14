@@ -9,6 +9,7 @@ const App = () => {
     const [viewDate, setViewDate] = useState(new Date());  
     const [t, setT] = useState(0);     
     return (
+        <>
         <div className="relative h-screen bg-gradient-to-r from-blue-400 to-purple-500">
             {/* 3D Scene */}
             <div className="absolute inset-0 z-10">
@@ -25,6 +26,7 @@ const App = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

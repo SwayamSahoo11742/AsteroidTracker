@@ -1,4 +1,7 @@
 /* Track with pointy ends */
+body {
+  overflow: hidden; /* Prevents overflow of child elements */
+}
 
 #speed-slider {
   -webkit-appearance: none;
