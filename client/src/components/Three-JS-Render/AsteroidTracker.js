@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import styles from "../../index.css";
-import { createSun, drawBody, orbitalCurve, updateBody, updateCurve, updateLabel, updateIcon} from "./BodyVisual";
+import { createSun, drawBody, orbitalCurve, updateBody, updateCurve, updateLabel, updateIcon, followBody} from "./BodyVisual";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Asteroid, orbitalData, Earth, getCurrentD } from "./BodyPosition";
 import asteroids from "./asteroids.json"
@@ -9,6 +9,7 @@ import asteroids from "./asteroids.json"
 const AsteroidTracker = ({ speed, setViewDate, t, setT }) => {
     var celestials = orbitalData;
     const mountRef = useRef(null);
+    const controlsRef = useRef(null)
     const cameraRef = useRef(null); // Declare the camera ref
     const [textLabels, setTextLabels] = useState([]);
     const [icons, setIcons] = useState([]);
@@ -52,6 +53,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, setT }) => {
         mountRef.current.appendChild(renderer.domElement);
 
         const controls = new OrbitControls(camera, renderer.domElement);
+        controlsRef.current = controls
 
         // Add the Sun
         const sun = createSun();
@@ -87,18 +89,29 @@ const AsteroidTracker = ({ speed, setViewDate, t, setT }) => {
                 bodiesRef.current[name] = { obj, sphere, orbit, textPosition, iconPosition };
             }
 
-            // Add label if obj.label is true
             if (obj.label === true) {
                 labels.push(
-                    <div key={name} id={name} className='absolute z-50 text-white' style={{color:`#${obj.color.toString(16)}`}}>
+                    <div
+                        key={name}
+                        id={name}
+                        className='absolute z-50 text-white hover:cursor-pointer'
+                        style={{ color: `#${obj.color.toString(16)}` }}
+                        onClick={() => followBody(name, controls, d, t, celestials)}
+                    >
                         {name}
                     </div>
                 );
                 tempIcons.push(
-                    <div key={`${name}-icon`} id={`${name}-icon`} className='absolute z-50 rounded-full size-1.5' style={{backgroundColor: `#${obj.color.toString(16)}`}}></div>
-                )
-            }
+                    <div
+                        key={`${name}-icon`}
+                        id={`${name}-icon`}
+                        className='hover:cursor-pointer absolute z-50 rounded-full size-1.5'
+                        style={{ backgroundColor: `#${obj.color.toString(16)}` }}
+                        onClick={() => followBody(name, controls, d, t, celestials)} 
+                    ></div>
+                );
         }
+    }
 
         // Update state with generated labels
         setTextLabels(labels);
@@ -139,19 +152,15 @@ const AsteroidTracker = ({ speed, setViewDate, t, setT }) => {
                     var iconDiv = document.getElementById(`${name}-icon`)
                     var textPosition = bodiesRef.current[name].textPosition;
                     var iconPosition = bodiesRef.current[name].iconPosition;
-        
                     updateLabel(model, textDiv, sceneDiv, cameraRef.current, textPosition)
                     updateIcon(model, iconDiv, sceneDiv, cameraRef.current, iconPosition)
                 }
             }
-
-
         }, 10);
 
         // Clean up interval when speed changes
         return () => clearInterval(intervalRef.current);
     }, [speed, t, d]);
-
     return (
         <>
             <div id="scene" ref={mountRef}></div>

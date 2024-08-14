@@ -3,7 +3,15 @@ import { Slider } from './components/UI/slider';
 import { Timeline } from './components/UI/timeline';
 import styles from "./index.css";
 import React, { useState } from 'react';
-
+// Disabling native browser zoom so threejs zoom doesn't get interrupted
+document.addEventListener('wheel', event => {
+    const { ctrlKey } = event
+    if (ctrlKey) {
+       event.preventDefault();
+       return
+    }
+ }, { passive: false })
+ 
 const App = () => {
     const [speed, setSpeed] = useState(0); // Moved speed state here
     const [viewDate, setViewDate] = useState(new Date());  
