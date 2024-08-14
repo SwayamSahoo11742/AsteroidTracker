@@ -18,7 +18,7 @@ const App = () => {
             {/* UI overlay */}
             <div className="absolute inset-x-0 bottom-0 flex flex-col items-center text-white z-20">
                 <div className="w-4/12 max-w-3xl px-4 py-2">
-                    <Slider speed={speed} setSpeed={setSpeed} /> {/* Pass speed and setSpeed as props */}
+                    <Slider speed={speed} setSpeed={setSpeed} setT={setT} /> {/* Pass speed and setSpeed as props */}
                 </div>
                 <div className="w-full max-w-3xl px-4 py-2 mt-4">
                     <Timeline viewDate={viewDate} setT={setT} />
