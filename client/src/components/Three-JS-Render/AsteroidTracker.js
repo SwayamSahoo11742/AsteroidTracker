@@ -25,7 +25,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, setT }) => {
     const addDays = (now, days) => new Date(new Date(now).setDate(now.getDate() + days));
 
     const createAsteroids = (lst) => {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 1000; i++) {
             let data = lst[i];
             celestials[n2_(data.full_name)] = new Asteroid(
                 Number(data.epoch), Number(data.om), Number(data.i), Number(data.w),

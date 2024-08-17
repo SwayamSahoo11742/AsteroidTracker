@@ -124,7 +124,7 @@ export const updateCurve = (orbit, obj, color, d, t) => {
 
 // Creates object for sun
 export const createSun = () => {
-    const sunGeometry = new THREE.SphereGeometry(32, 32, 32);
+    const sunGeometry = new THREE.SphereGeometry(0.69634,32,32);
     const sunTexture = new THREE.TextureLoader().load("Sun.jpg")
     const sunMaterial = new THREE.MeshBasicMaterial({map: sunTexture});
     const sun = new THREE.Mesh(sunGeometry, sunMaterial);
