@@ -2,15 +2,28 @@
 
 import * as THREE from "three";
 import { Earth } from "./BodyPosition";
+import { Canvas, useLoader, useFrame } from '@react-three/fiber'
+import React, {useMemo, useState, useRef} from "react"
 
 //  Draws body at given heliocentric ecliptic rectangular coords with a given mesh
-export const drawBody = (x, y, z, mesh, radius) => {
-    const geometry = new THREE.SphereGeometry(radius, 32, 16);
-    const texture = new THREE.TextureLoader().load(mesh)
-    const material = new THREE.MeshBasicMaterial({map: texture});
-    const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.set(x, y, z);
-    return sphere;
+export const Body = ({ obj, d, t, mesh, radius }) => {
+  const texture = useLoader(THREE.TextureLoader, mesh);
+  const KM = 149.6;
+  // Use useMemo to compute the position based on t.current
+  const position = useMemo(() => {
+      const { xeclip, yeclip, zeclip } = obj.coordinates(d + t.current);
+      const x = xeclip * KM;
+      const y = yeclip * KM;
+      const z = zeclip * KM;
+      return [x, y, z];
+  }, [obj, d, t]);
+
+  return (
+      <mesh position={position}> 
+          <sphereGeometry args={[radius, 32, 16]} />
+          <meshBasicMaterial attach="material" map={texture} />
+      </mesh>
+  );
 };
 const KM = 149.6;
 
@@ -71,17 +84,21 @@ export const orbitalLineProperties = (vectors, color) => {
   return {geometry, material};
 
 }
+export const OrbitalCurve = ({ obj, color, d, t }) => {;
 
-// Curve with a fading trail as the orbit for bodies. obj is Celestion object
-export const orbitalCurve = (obj, color, d, t) => {
-    let vectors = orbitalVectors(obj, d, t);
-    vectors.reverse();
-    const {geometry, material} = orbitalLineProperties(vectors, color);
-    
-    // Create the final object to add to the scene
-    const curveObject = new THREE.Line(geometry, material);
-    return curveObject;
+  const { geometry, material } = useMemo(() => {
+      // Generate the orbital vectors
+      const vectors = orbitalVectors(obj, d, t.current).reverse();
+
+      // Get the geometry and material using the vectors and color
+      return orbitalLineProperties(vectors, color);
+  }, [obj, color, d, t]);
+
+  return (
+      <line geometry={geometry} material={material} />
+  );
 };
+
 
  // follows a body (works once, therefore miust be looped)
 export const followBody = (name, controls, d, t, celestials) => {
@@ -100,35 +117,37 @@ export const followBody = (name, controls, d, t, celestials) => {
   controls.saveState()
 }
 
-//  Updates body's position
-export const updateBody = (body, d, t) => {
-    const {xeclip, yeclip, zeclip} = body.obj.coordinates(d+t);
-    const x = xeclip * KM;
-    const y = yeclip * KM;
-    const z = zeclip * KM;
-    body.sphere.position.x = x;
-    body.sphere.position.y = y;
-    body.sphere.position.z = z;
-    }
+// //  Updates body's position
+// export const updateBody = (body, d, t) => {
+//     const {xeclip, yeclip, zeclip} = body.obj.coordinates(d+t);
+//     const x = xeclip * KM;
+//     const y = yeclip * KM;
+//     const z = zeclip * KM;
+//     body.sphere.position.x = x;
+//     body.sphere.position.y = y;
+//     body.sphere.position.z = z;
+//     }
 
 
 // Updates body's orbital trail
-export const updateCurve = (orbit, obj, color, d, t) => {
-    let vectors = orbitalVectors(obj, d, t);
-    vectors.reverse();
-    const {geometry, material} = orbitalLineProperties(vectors, color);
-    // update the curve
-    orbit.geometry = geometry;
-    orbit.material = material;
-}
+// export const updateCurve = (orbit, obj, color, d, t) => {
+//     let vectors = orbitalVectors(obj, d, t);
+//     vectors.reverse();
+//     const {geometry, material} = orbitalLineProperties(vectors, color);
+//     // update the curve
+//     orbit.geometry = geometry;
+//     orbit.material = material;
+// }
 
 // Creates object for sun
-export const createSun = () => {
-    const sunGeometry = new THREE.SphereGeometry(32, 32, 32);
-    const sunTexture = new THREE.TextureLoader().load("Sun.jpg")
-    const sunMaterial = new THREE.MeshBasicMaterial({map: sunTexture});
-    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
-    return sun
+export const Sun = () => {
+  const sunTexture = useLoader(THREE.TextureLoader, "sun.jpg")
+  return(
+      <mesh position={[0,0,0]}>
+          <sphereGeometry args={[2,32,32]}/>
+          <meshBasicMaterial attach="material" map={sunTexture}  />
+      </mesh>
+  )
 }
 
 export const updateLabel = (model, textDiv, sceneDiv, camera, textPosition) => {

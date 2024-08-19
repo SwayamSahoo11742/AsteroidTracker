@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import "./timeline.css"
 import { getCurrentD } from "../Three-JS-Render/BodyPosition";
-export const Timeline = ({ viewDate, setT }) => {
+export const Timeline = ({ viewDate, t }) => {
     // Formatting date and time with the given date object
     // MMM YYYY, DD
     // HH:MM:SS am/pm
@@ -42,7 +42,7 @@ export const Timeline = ({ viewDate, setT }) => {
     const changeT = (event) =>{
         var today = getCurrentD(new Date());
         var dateTarget = event.target.value;
-        setT(today- dateTarget)
+        t.current = today- dateTarget;
     }
     return (
         <>
