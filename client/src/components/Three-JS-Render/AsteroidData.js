@@ -3,7 +3,8 @@ import data from "./asteroids.json"
 const n2_ = (str) => str.replace(/\s+/g, '_');
 const createAsteroids = (lst) => {
     let asts = []; // Move this declaration outside the loop
-    for (let i = 0; i < 35000; i++) {
+    for (let i = 0; i < 35500
+        ; i++) {
         let data = lst[i];
         asts.push(new Asteroid(
             Number(data.epoch), Number(data.om), Number(data.i), Number(data.w),

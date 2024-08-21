@@ -4,7 +4,53 @@ import * as THREE from "three";
 import { Earth } from "./BodyPosition";
 import { Canvas, useLoader, useFrame } from '@react-three/fiber'
 import React, {useMemo, useState, useRef} from "react"
+import { asteroidData } from "./AsteroidData";
 
+export const initBodies = (celestials,d,t,bodies,orbitalCurves) =>{
+  Object.entries(celestials).forEach(([name, obj]) => {
+    const { xeclip, yeclip, zeclip } = obj.coordinates(d);
+    const x = xeclip * KM;
+    const y = yeclip * KM;
+    const z = zeclip * KM;
+
+    const body = <Body obj={obj} d={d} t={t} mesh={obj.mesh} radius={obj.radius} />;
+    const orbitalCurve = <OrbitalCurve key={`curve-${name}`} obj={obj} color={obj.color} d={d} t={t} />;
+
+    bodies.push(body);
+    orbitalCurves.push(orbitalCurve);
+});
+}
+
+export const InstancedAsteroids = ({asteroidCount, d, t}) => {
+  const meshRef = useRef();
+
+  const AsteroidGeometry = new THREE.SphereGeometry(1, 1, 1); // Increase the radius to 1
+  const AsteroidMaterial = new THREE.MeshBasicMaterial({ color: "#144be3" });
+
+
+  useFrame(() => {
+      const mesh = meshRef.current;
+      if (!mesh) return;
+      
+      const instanceMatrix = mesh.instanceMatrix;
+      for (let i = 0; i < asteroidCount; i++) {
+          const matrix = new THREE.Matrix4();
+          const {xeclip, yeclip, zeclip} = asteroidData[i].coordinates(d + t.current);
+          const x = xeclip * KM;
+          const y = yeclip * KM;
+          const z = zeclip * KM;
+          matrix.setPosition(x, y, z);
+          mesh.setMatrixAt(i, matrix);
+      }
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+      instanceMatrix.needsUpdate = true;
+  });
+
+  return (
+      <instancedMesh ref={meshRef} args={[AsteroidGeometry, AsteroidMaterial, asteroidCount]} />
+  );
+};
 //  Draws body at given heliocentric ecliptic rectangular coords with a given mesh
 export const Body = ({ obj, d, t, mesh, radius }) => {
   const texture = useLoader(THREE.TextureLoader, mesh);
