@@ -15,14 +15,14 @@ export const Slider = ({ speed, t }) => {
         <div className="flex flex-col items-center">
             <div className="text-white mb-2 flex w-3/4 justify-between items-center">
                 <button id="live" onClick={live}>Live</button>
-                <span>{Math.round(Number(speed.current) * 100)} days/s</span>
+                <span>{Math.round(Number(speed.current))} days/s</span>
                 <button id="pause" onClick={pause}></button>
             </div>
             <input
                 id="speed-slider"
                 type="range"
-                max="3.65"
-                min="-3.65"
+                max="365"
+                min="-365"
                 step="0.0416666"
                 value={speed.current}
                 onChange={changeSpeed}

@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Sun, Body, OrbitalCurve, InstancedAsteroids, initBodies } from "./BodyVisual";
-import { getCurrentD, orbitalData, Asteroid} from "./BodyPosition";
+import { getCurrentD, orbitalData } from "./BodyPosition";
 import Stats from 'stats.js';
 import { asteroidData } from './AsteroidData';
 
@@ -15,23 +15,33 @@ const AsteroidTracker = ({ speed, viewDate, setViewDate, t }) => {
     const bodies = [];
     const orbitalCurves = [];
     const addDays = (now, days) => new Date(new Date(now).setDate(now.getDate() + days));
-    const stats = useRef(null);
 
-    initBodies(celestials, d, t, bodies, orbitalCurves)
+    initBodies(celestials, d, t, bodies, orbitalCurves);
 
+    // Initialize Stats.js
+    const statsRef = useRef(null);
 
+    useEffect(() => {
+        statsRef.current = new Stats();
+        statsRef.current.showPanel(0); // 0: FPS, 1: MS/frame, 2: Memory
+        document.body.appendChild(statsRef.current.dom);
+
+        return () => {
+            document.body.removeChild(statsRef.current.dom);
+        };
+    }, []);
 
     const Animation = () => {
-        const lastTime = useRef(0);
-        const interval = 0.1;
 
         useFrame(({ clock }) => {
-            const elapsedTime = clock.getElapsedTime();
-            if (elapsedTime - lastTime.current >= interval) {
-                setViewDate(addDays(datenow, t.current));
-                t.current += Number(speed.current);
-                lastTime.current = elapsedTime;
-            }
+
+            setViewDate(addDays(datenow, t.current));
+            t.current += Number(speed.current)/30;
+    
+
+            // Update stats
+            statsRef.current.begin();
+            statsRef.current.end();
         });
     };
 

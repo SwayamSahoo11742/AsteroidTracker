@@ -3,9 +3,10 @@
 import * as THREE from "three";
 import { Earth } from "./BodyPosition";
 import { Canvas, useLoader, useFrame } from '@react-three/fiber'
-import React, {useMemo, useState, useRef} from "react"
+import React, {useMemo, useEffect, useRef} from "react"
 import { asteroidData } from "./AsteroidData";
 
+// Initializes Bodies
 export const initBodies = (celestials,d,t,bodies,orbitalCurves) =>{
   Object.entries(celestials).forEach(([name, obj]) => {
     const { xeclip, yeclip, zeclip } = obj.coordinates(d);
@@ -21,11 +22,20 @@ export const initBodies = (celestials,d,t,bodies,orbitalCurves) =>{
 });
 }
 
+
+// Instance Mesh Asteroids
 export const InstancedAsteroids = ({asteroidCount, d, t}) => {
   const meshRef = useRef();
 
   const AsteroidGeometry = new THREE.SphereGeometry(1, 1, 1); // Increase the radius to 1
   const AsteroidMaterial = new THREE.MeshBasicMaterial({ color: "#144be3" });
+
+  useEffect(() => {
+    return () => {
+      AsteroidGeometry.dispose(); // Dispose on unmount
+      AsteroidMaterial.dispose();
+    };
+  }, [AsteroidGeometry, AsteroidMaterial]);
 
 
   useFrame(() => {
@@ -42,8 +52,7 @@ export const InstancedAsteroids = ({asteroidCount, d, t}) => {
           matrix.setPosition(x, y, z);
           mesh.setMatrixAt(i, matrix);
       }
-      mesh.geometry.dispose();
-      mesh.material.dispose();
+
       instanceMatrix.needsUpdate = true;
   });
 
@@ -51,10 +60,19 @@ export const InstancedAsteroids = ({asteroidCount, d, t}) => {
       <instancedMesh ref={meshRef} args={[AsteroidGeometry, AsteroidMaterial, asteroidCount]} />
   );
 };
+
+
 //  Draws body at given heliocentric ecliptic rectangular coords with a given mesh
 export const Body = ({ obj, d, t, mesh, radius }) => {
   const texture = useLoader(THREE.TextureLoader, mesh);
   const KM = 149.6;
+
+  useEffect(() => {
+    return () => {
+      texture.dispose(); // Dispose texture on unmount
+    };
+  }, [texture]);
+
   // Use useMemo to compute the position based on t.current
   const position = useMemo(() => {
       const { xeclip, yeclip, zeclip } = obj.coordinates(d + t.current);
@@ -140,6 +158,13 @@ export const OrbitalCurve = ({ obj, color, d, t }) => {;
       return orbitalLineProperties(vectors, color);
   }, [obj, color, d, t]);
 
+  useEffect(() => {
+    return () => {
+      geometry.dispose(); // Dispose of geometry
+      material.dispose(); // Dispose of material
+    };
+  }, [geometry, material]);
+
   return (
       <line geometry={geometry} material={material} />
   );
@@ -163,31 +188,15 @@ export const followBody = (name, controls, d, t, celestials) => {
   controls.saveState()
 }
 
-// //  Updates body's position
-// export const updateBody = (body, d, t) => {
-//     const {xeclip, yeclip, zeclip} = body.obj.coordinates(d+t);
-//     const x = xeclip * KM;
-//     const y = yeclip * KM;
-//     const z = zeclip * KM;
-//     body.sphere.position.x = x;
-//     body.sphere.position.y = y;
-//     body.sphere.position.z = z;
-//     }
-
-
-// Updates body's orbital trail
-// export const updateCurve = (orbit, obj, color, d, t) => {
-//     let vectors = orbitalVectors(obj, d, t);
-//     vectors.reverse();
-//     const {geometry, material} = orbitalLineProperties(vectors, color);
-//     // update the curve
-//     orbit.geometry = geometry;
-//     orbit.material = material;
-// }
-
-// Creates object for sun
+// Create Sun
 export const Sun = () => {
   const sunTexture = useLoader(THREE.TextureLoader, "sun.jpg")
+
+  useEffect(() => {
+    return () => {
+      sunTexture.dispose(); // Dispose of texture on unmount
+    };
+  }, [sunTexture]);
   return(
       <mesh position={[0,0,0]}>
           <sphereGeometry args={[2,32,32]}/>
