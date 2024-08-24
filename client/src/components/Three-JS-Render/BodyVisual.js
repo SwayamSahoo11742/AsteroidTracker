@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { Earth } from "./BodyPosition";
 import { Canvas, useLoader, useFrame } from '@react-three/fiber'
-import React, {useMemo, useEffect, useRef} from "react"
+import React, {useMemo, useEffect, useRef, forwardRef} from "react"
 import { asteroidData } from "./AsteroidData";
 
 // Initializes Bodies
@@ -17,18 +17,24 @@ export const initBodies = (celestials,d,t,bodies,orbitalCurves) =>{
     const body = <Body obj={obj} d={d} t={t} mesh={obj.mesh} radius={obj.radius} />;
     const orbitalCurve = <OrbitalCurve key={`curve-${name}`} obj={obj} color={obj.color} d={d} t={t} />;
 
-    bodies.push(body);
+    bodies[name] = body;
     orbitalCurves.push(orbitalCurve);
 });
 }
 
 
 // Instance Mesh Asteroids
-export const InstancedAsteroids = ({asteroidCount, d, t}) => {
+export const InstancedAsteroids = ({asteroidCount, d, t, data, pha=false}) => {
   const meshRef = useRef();
 
-  const AsteroidGeometry = new THREE.SphereGeometry(1, 1, 1); // Increase the radius to 1
-  const AsteroidMaterial = new THREE.MeshBasicMaterial({ color: "#144be3" });
+  const AsteroidGeometry = new THREE.SphereGeometry(1, 32, 32); // Radius of 1
+  let color = pha ? "#fc0352" : "#144be3";
+  let opacity = pha ? 1 : 0.8;
+  const AsteroidMaterial = new THREE.MeshBasicMaterial({ 
+    color: color, 
+    transparent: true,
+    opacity: opacity
+  });
 
   useEffect(() => {
     return () => {
@@ -45,7 +51,7 @@ export const InstancedAsteroids = ({asteroidCount, d, t}) => {
       const instanceMatrix = mesh.instanceMatrix;
       for (let i = 0; i < asteroidCount; i++) {
           const matrix = new THREE.Matrix4();
-          const {xeclip, yeclip, zeclip} = asteroidData[i].coordinates(d + t.current);
+          const {xeclip, yeclip, zeclip} = data[i].coordinates(d + t.current);
           const x = xeclip * KM;
           const y = yeclip * KM;
           const z = zeclip * KM;
@@ -63,7 +69,7 @@ export const InstancedAsteroids = ({asteroidCount, d, t}) => {
 
 
 //  Draws body at given heliocentric ecliptic rectangular coords with a given mesh
-export const Body = ({ obj, d, t, mesh, radius }) => {
+export const Body = forwardRef(({ obj, d, t, mesh, radius }, ref) => {
   const texture = useLoader(THREE.TextureLoader, mesh);
   const KM = 149.6;
 
@@ -75,20 +81,20 @@ export const Body = ({ obj, d, t, mesh, radius }) => {
 
   // Use useMemo to compute the position based on t.current
   const position = useMemo(() => {
-      const { xeclip, yeclip, zeclip } = obj.coordinates(d + t.current);
-      const x = xeclip * KM;
-      const y = yeclip * KM;
-      const z = zeclip * KM;
-      return [x, y, z];
+    const { xeclip, yeclip, zeclip } = obj.coordinates(d + t.current);
+    const x = xeclip * KM;
+    const y = yeclip * KM;
+    const z = zeclip * KM;
+    return [x, y, z];
   }, [obj, d, t]);
 
   return (
-      <mesh position={position}> 
-          <sphereGeometry args={[radius, 32, 16]} />
-          <meshBasicMaterial attach="material" map={texture} />
-      </mesh>
+    <mesh position={position} ref={ref}> 
+      <sphereGeometry args={[radius, 32, 16]} />
+      <meshBasicMaterial attach="material" map={texture} />
+    </mesh>
   );
-};
+});
 const KM = 149.6;
 
 // Generates vectors that will be used to generate a curve to describe a body's orbit
@@ -207,7 +213,7 @@ export const Sun = () => {
 
 export const updateLabel = (model, textDiv, sceneDiv, camera, textPosition) => {
   if (model) {
-    textPosition.setFromMatrixPosition(model.sphere.matrixWorld);
+    textPosition.setFromMatrixPosition(model.matrixWorld);
     textPosition.project(camera);
 
     const halfWidth = sceneDiv.clientWidth / 2;
@@ -217,6 +223,7 @@ export const updateLabel = (model, textDiv, sceneDiv, camera, textPosition) => {
 
     const labelWidth = textDiv.offsetWidth;
     const labelHeight = textDiv.offsetHeight;
+
 
     // Check if the label is within the viewport
     const isInViewport = (
@@ -240,7 +247,7 @@ export const updateLabel = (model, textDiv, sceneDiv, camera, textPosition) => {
 export const updateIcon = (model, iconDiv, sceneDiv, camera, iconPosition) => {
   if (model) {
     // Get the position of the object in world space
-    iconPosition.setFromMatrixPosition(model.sphere.matrixWorld);
+    iconPosition.setFromMatrixPosition(model.matrixWorld);
     
     // Project this position to 2D screen space
     iconPosition.project(camera);
