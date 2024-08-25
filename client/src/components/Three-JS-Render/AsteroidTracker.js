@@ -7,7 +7,7 @@ import { getCurrentD, orbitalData } from "./BodyPosition";
 import Stats from 'stats.js';
 import { asteroidData, pha } from './AsteroidData';
 
-const AsteroidTracker = ({ speed, viewDate, setViewDate, t }) => {
+const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA}) => {
     const [labeledBodies, setLabeledBodies] = useState({"Mercury":"#dabaff", "Venus":"#fa9a41", "Earth":"#1fb0e0", "Mars":"#e0521f", "Jupiter":"#f2a285", "Saturn":"#e0d665", "Uranus":"#8ee6e4", "Neptune":"#4534fa"});
     const asteroidCount = 35600;
     const PHACount = 2440;
@@ -38,9 +38,6 @@ const AsteroidTracker = ({ speed, viewDate, setViewDate, t }) => {
         // Keep only refs for existing bodies
         bodyRefs.current = updatedRefs;
     }, [bodies]);
-    
-    const [showPHA, setShowPHA] = useState(false);
-    const [showNEO, setShowNEO] = useState(true);
 
     // Initialize Stats.js
     const statsRef = useRef(null);
@@ -80,7 +77,7 @@ const AsteroidTracker = ({ speed, viewDate, setViewDate, t }) => {
             })
         });
     };
-    console.log(bodyRefs)
+
 
     return (
         <>
@@ -103,7 +100,7 @@ const AsteroidTracker = ({ speed, viewDate, setViewDate, t }) => {
                 ))}
                 {orbitalCurves}
                 {showNEO ? <InstancedAsteroids asteroidCount={asteroidCount - PHACount} d={d} t={t} data={asteroidData} pha={false} /> : null}
-                <InstancedAsteroids asteroidCount={PHACount} d={d} t={t} data={pha} pha={showPHA} />
+                {!showNEO && !showPHA ? null : <InstancedAsteroids asteroidCount={PHACount} d={d} t={t} data={pha} pha={showPHA} />}
                 <OrbitControls />
                 <Animation />
             </Canvas>
