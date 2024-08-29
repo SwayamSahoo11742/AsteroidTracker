@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export const Menu = ({setShowNEO, setShowPHA, showNEO}) => {
+export const Menu = ({setShowNEO, setShowPHA, showNEO, showComet, setShowComet}) => {
     return (
         <>
             <button className="btn" onClick={() => document.getElementById('panel').showModal()}>Control Panel</button>
@@ -16,8 +16,8 @@ export const Menu = ({setShowNEO, setShowPHA, showNEO}) => {
                             <label htmlFor="asteroids-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Asteroids</label>
                         </span>
 
-                        <span className="flex items-center">
-                            <input id="comets-checkbox" type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" checked={true}/>
+                      <span className="flex items-center">
+                            <input id="comets-checkbox" type="checkbox" defaultChecked={showComet} onClick={(event) => setShowComet(event.target.checked)} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
                             <label htmlFor="comets-checkbox" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Comets</label>
                         </span>
 

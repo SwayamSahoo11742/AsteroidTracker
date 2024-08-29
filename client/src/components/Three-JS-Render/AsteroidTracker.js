@@ -5,12 +5,13 @@ import { Bounds, OrbitControls } from '@react-three/drei';
 import { Sun, Body, OrbitalCurve, InstancedAsteroids, initBodies, updateLabel,updateIcon} from "./BodyVisual";
 import { getCurrentD, orbitalData } from "./BodyPosition";
 import Stats from 'stats.js';
-import { asteroidData, pha } from './AsteroidData';
+import { asteroidData, pha, cometData } from './AsteroidData';
 
-const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA}) => {
+const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) => {
     const [labeledBodies, setLabeledBodies] = useState({"Mercury":"#dabaff", "Venus":"#fa9a41", "Earth":"#1fb0e0", "Mars":"#e0521f", "Jupiter":"#f2a285", "Saturn":"#e0d665", "Uranus":"#8ee6e4", "Neptune":"#4534fa"});
-    const asteroidCount = 35600;
+    const asteroidCount = 35469;
     const PHACount = 2440;
+    const cometCount = 205;
     const d = getCurrentD(new Date());
     const datenow = new Date();
     const celestials = orbitalData;
@@ -84,7 +85,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA}) => {
             <Canvas
                 id='canvas'
                 gl={{ alpha: false, antialias: true }} style={{ background: 'black' }}
-                camera={{ position: [0, 0, 150], far: 10000 }} // Adjusted camera position
+                camera={{ position: [0, 0, 150], far: 100000 }} // Adjusted camera position
             >
                 <Sun />
                 {Object.entries(bodies).map(([name, body]) => (
@@ -99,8 +100,9 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA}) => {
                     />
                 ))}
                 {orbitalCurves}
-                {showNEO ? <InstancedAsteroids asteroidCount={asteroidCount - PHACount} d={d} t={t} data={asteroidData} pha={false} /> : null}
-                {!showNEO && !showPHA ? null : <InstancedAsteroids asteroidCount={PHACount} d={d} t={t} data={pha} pha={showPHA} />}
+                {showNEO ? <InstancedAsteroids asteroidCount={asteroidCount} d={d} t={t} data={asteroidData} pha={false} /> : null}
+                {!showNEO && !showPHA ? null : <InstancedAsteroids asteroidCount={PHACount} d={d} t={t} data={pha} pha={true} />}
+                {showComet? <InstancedAsteroids asteroidCount={cometCount} d={d} t={t} data={cometData} pha={false} comet={true}/> : null}
                 <OrbitControls />
                 <Animation />
             </Canvas>

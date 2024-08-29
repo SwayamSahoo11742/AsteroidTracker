@@ -24,12 +24,26 @@ export const initBodies = (celestials,d,t,bodies,orbitalCurves) =>{
 
 
 // Instance Mesh Asteroids
-export const InstancedAsteroids = ({asteroidCount, d, t, data, pha=false}) => {
+export const InstancedAsteroids = ({asteroidCount, d, t, data, pha=false, comet=false}) => {
   const meshRef = useRef();
+  let color;
+  let opacity;
+  let radius;
+  if(pha){
+    color = "#fc0352";
+    opacity = 1;
+    radius = 1.5;
+  }else if(comet){
+    color = "#ffffff";
+    opacity = 0.8;
+    radius = 3;
+  }else{
+    color = "#144be3";
+    opacity = 0.8;
+    radius = 1.35;
+  }
+  const AsteroidGeometry = new THREE.SphereGeometry(radius, 32, 32); // Radius of 1
 
-  const AsteroidGeometry = new THREE.SphereGeometry(1, 32, 32); // Radius of 1
-  let color = pha ? "#fc0352" : "#144be3";
-  let opacity = pha ? 1 : 0.8;
   const AsteroidMaterial = new THREE.MeshBasicMaterial({ 
     color: color, 
     transparent: true,

@@ -17,6 +17,7 @@ document.addEventListener('wheel', event => {
 const App = () => {
     const [showPHA, setShowPHA] = useState(false);
     const [showNEO, setShowNEO] = useState(true);
+    const [showComet, setShowComet] = useState(true);
     const speed = useRef(0); // Moved speed state here
     const [viewDate, setViewDate] = useState(new Date());     
     const t = useRef(0);
@@ -26,7 +27,7 @@ const App = () => {
         <div className="relative h-screen bg-gradient-to-r from-blue-400 to-purple-500">
             {/* 3D Scene */}
             <div className="absolute inset-0 z-10">
-                <AsteroidTracker speed={speed} setViewDate={setViewDate} t={t} showNEO={showNEO} showPHA={showPHA}/> {/* Pass speed as a prop */}
+                <AsteroidTracker speed={speed} setViewDate={setViewDate} t={t} showNEO={showNEO} showPHA={showPHA} showComet={showComet}/>
             </div>
 
             {/* UI overlay */}
@@ -41,7 +42,7 @@ const App = () => {
 
             {/* Menu at the top right */}
             <div className="absolute top-0 right-0 m-4 z-20">
-                <Menu setShowNEO={setShowNEO} setShowPHA={setShowPHA} showNEO={showNEO} />
+                <Menu setShowNEO={setShowNEO} setShowPHA={setShowPHA} showNEO={showNEO} showComet={showComet} setShowComet={setShowComet}/>
             </div>
         </div>
         </>
