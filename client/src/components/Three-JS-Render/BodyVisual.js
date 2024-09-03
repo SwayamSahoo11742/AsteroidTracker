@@ -2,9 +2,77 @@
 
 import * as THREE from "three";
 import { Earth } from "./BodyPosition";
-import { Canvas, useLoader, useFrame } from '@react-three/fiber'
+import { Canvas, useLoader, useFrame} from '@react-three/fiber'
 import React, {useMemo, useEffect, useRef, forwardRef} from "react"
 import { asteroidData } from "./AsteroidData";
+
+
+// on-click event for Follow Body
+export const followBodyClick = (body, bodyRefs, controls, camera, setTarget, setFollowingBody) =>{
+  setFollowingBody(body);
+  const positionVector = new THREE.Vector3();
+  const matrixWorld = bodyRefs.current[body].matrixWorld;
+  positionVector.setFromMatrixPosition(matrixWorld);
+
+  // Set a fixed offset above the Earth (top-down view)
+  const cameraOffset = new THREE.Vector3(0, 0, 50); // Adjust Z-axis value as needed
+
+  // Set the target to the Earth's position
+  controls.current.target.copy(positionVector);
+
+  // Move the camera to follow the Earth with the top-down offset
+  const targetCameraPosition = positionVector.clone().add(cameraOffset);
+  camera.position.lerp(targetCameraPosition, 0.1); // Smoothly follow the Earth
+
+  setTarget(positionVector);
+} 
+// Follow Body function
+export const followBody = (body, bodyRefs, zoomFactor, controls, camera, setTarget) => {
+  const positionVector = new THREE.Vector3();
+  const matrixWorld = bodyRefs.current[body].matrixWorld;
+  positionVector.setFromMatrixPosition(matrixWorld);
+  
+  // Set the target to the Earth's position
+  controls.current.target.copy(positionVector);
+  
+  // Move the camera towards the Earth's position directly
+  const cameraOffset = new THREE.Vector3(0, -50 * zoomFactor,10*zoomFactor); // Adjust as needed
+  const targetCameraPosition = positionVector.clone().add(cameraOffset);
+  
+  camera.position.copy(targetCameraPosition);
+  camera.updateProjectionMatrix();
+  
+  setTarget(positionVector);
+}
+// Zooming while following body
+export const ZoomComponent = ({setZoomFactor, zoomFactor}) => {
+ 
+  const MIN_ZOOM = 0.25;
+  const MAX_ZOOM = 1000;
+  useEffect(() => {
+    const handleWheel = (event) => {
+      // Adjust the zoom factor based on the wheel delta
+      const zoomAmount = event.deltaY * (0.01/10)*zoomFactor; // Adjust sensitivity
+      setZoomFactor((prevZoomFactor) => {
+          const newZoomFactor = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, prevZoomFactor + zoomAmount));
+          console.log(newZoomFactor)
+        return newZoomFactor;
+      });
+      console.log('New zoom factor:', zoomFactor);
+    };
+
+    window.addEventListener('wheel', handleWheel);
+
+    // Clean up the event listener on component unmount
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [zoomFactor]);
+
+
+  return null; // This component does not render anything itself
+};
+
 
 // Initializes Bodies
 export const initBodies = (celestials,d,t,bodies,orbitalCurves) =>{
@@ -191,22 +259,7 @@ export const OrbitalCurve = ({ obj, color, d, t }) => {;
 };
 
 
- // follows a body (works once, therefore miust be looped)
-export const followBody = (name, controls, d, t, celestials) => {
-  let curD = d + t;
-  let xeclip, yeclip, zeclip;
-  if(name === "Earth"){
-    ({xeclip, yeclip, zeclip} = new Earth().coordinates(curD)) 
-  }else{
-    ({xeclip, yeclip, zeclip} = celestials[name].coordinates(curD))
-  }
-  const x = xeclip * KM;
-  const y = yeclip * KM;
-  const z = zeclip * KM;
-  controls.target.set(x, y, z)
-  controls.update()
-  controls.saveState()
-}
+
 
 // Create Sun
 export const Sun = () => {

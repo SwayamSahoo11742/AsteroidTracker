@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Bounds, OrbitControls } from '@react-three/drei';
-import { Sun, Body, OrbitalCurve, InstancedAsteroids, initBodies, updateLabel,updateIcon} from "./BodyVisual";
+import { Sun, Body, OrbitalCurve, InstancedAsteroids, initBodies, updateLabel,updateIcon, followBody, ZoomComponent} from "./BodyVisual";
 import { getCurrentD, orbitalData } from "./BodyPosition";
 import Stats from 'stats.js';
 import { asteroidData, pha, cometData } from './AsteroidData';
@@ -20,6 +20,10 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
     const canvas = document.getElementById("canvas");
     const addDays = (now, days) => new Date(new Date(now).setDate(now.getDate() + days));
     const bodyRefs = useRef({}); // Create an array of refs
+    const [target, setTarget] = useState(new THREE.Vector3(0,0,0))
+    const controls = useRef();
+    const [zoomFactor, setZoomFactor] = useState(1);
+    const [followingBody, setFollowingBody] = useState(null);
 
 
     initBodies(celestials, d, t, bodies, orbitalCurves);
@@ -56,28 +60,35 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
     
 
     const Animation = () => {
-        const { camera, scene } = useThree();
-
+        const { camera } = useThree();
+        
         useFrame(() => {
             setViewDate(addDays(datenow, t.current));
             t.current += Number(speed.current) / 30;
+        
             // Update stats
             statsRef.current.begin();
             statsRef.current.end();
-
+        
             // Updating labels and icons
-            Object.entries(labeledBodies).forEach(([body, color]) =>{
+            Object.entries(labeledBodies).forEach(([body, color]) => {
                 const bodyDiv = document.getElementById(body);
                 const textPosition = new THREE.Vector3();
                 const iconDiv = document.getElementById(`${body}-icon`);
                 const iconPosition = new THREE.Vector3();
+        
                 if (bodyRefs.current[body] && bodyDiv && canvas) {
                     updateLabel(bodyRefs.current[body], bodyDiv, canvas, camera, textPosition);
-                    updateIcon(bodyRefs.current[body], iconDiv, canvas, camera, iconPosition)
+                    updateIcon(bodyRefs.current[body], iconDiv, canvas, camera, iconPosition);
                 }
-            })
+                if(followingBody){
+                    followBody(followingBody, bodyRefs, zoomFactor, controls, camera, setTarget)
+                }
+        
+            });
         });
     };
+    
 
 
     return (
@@ -101,15 +112,16 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
                 ))}
                 {orbitalCurves}
                 {showNEO ? <InstancedAsteroids asteroidCount={asteroidCount} d={d} t={t} data={asteroidData} pha={false} /> : null}
-                {!showNEO && !showPHA ? null : <InstancedAsteroids asteroidCount={PHACount} d={d} t={t} data={pha} pha={true} />}
+                {!showNEO && !showPHA ? null : <InstancedAsteroids asteroidCount={PHACount} d={d} t={t} data={pha} pha={showPHA} />}
                 {showComet? <InstancedAsteroids asteroidCount={cometCount} d={d} t={t} data={cometData} pha={false} comet={true}/> : null}
-                <OrbitControls />
+                <OrbitControls target={target} ref={controls}/>
                 <Animation />
+                <ZoomComponent setZoomFactor={setZoomFactor} zoomFactor={zoomFactor}/>
             </Canvas>
 
             {/* Text Labels */}
             {Object.entries(labeledBodies).map(([body,color]) => (
-                <div key={body} id={body} className="absolute z-50 text-white" style={{color:color}}>
+                <div key={body} id={body} onClick={() => setFollowingBody(body)} className="absolute z-50 text-white" style={{color:color}}>
                     {body}
                 </div>
             ))} 
@@ -118,6 +130,8 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
             {Object.entries(labeledBodies).map(([body,color]) => (
                 <div key={`${body}-icon`} id={`${body}-icon`} className='absolute z-50 rounded-full size-2.5' style={{backgroundColor: color}}></div>
             ))}
+
+            
         </>
     );
 };
