@@ -3,74 +3,109 @@
 import * as THREE from "three";
 import { Earth } from "./BodyPosition";
 import { Canvas, useLoader, useFrame} from '@react-three/fiber'
-import React, {useMemo, useEffect, useRef, forwardRef} from "react"
+import React, {useMemo, useEffect,useState, useRef, forwardRef} from "react"
 import { asteroidData } from "./AsteroidData";
 
 
-// on-click event for Follow Body
-export const followBodyClick = (body, bodyRefs, controls, camera, setTarget, setFollowingBody) =>{
-  setFollowingBody(body);
-  const positionVector = new THREE.Vector3();
-  const matrixWorld = bodyRefs.current[body].matrixWorld;
-  positionVector.setFromMatrixPosition(matrixWorld);
+export const CameraController = ({ alt, setAlt, az, setAz }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const startY = useRef(0);
+  const startX = useRef(0)
 
-  // Set a fixed offset above the Earth (top-down view)
-  const cameraOffset = new THREE.Vector3(0, 0, 50); // Adjust Z-axis value as needed
+  const handleMouseDown = (event) => {
+    setIsDragging(true);
+    startY.current = event.clientY;
+    startX.current = event.clientX;
+  };
 
-  // Set the target to the Earth's position
-  controls.current.target.copy(positionVector);
+  const handleMouseMove = (event) => {
+    if (isDragging) {
+      const deltaY = event.clientY - startY.current;
+      const deltaX = event.clientX - startX.current;
 
-  // Move the camera to follow the Earth with the top-down offset
-  const targetCameraPosition = positionVector.clone().add(cameraOffset);
-  camera.position.lerp(targetCameraPosition, 0.1); // Smoothly follow the Earth
+      setAlt(prevRotation => prevRotation + deltaY * 0.15);
+      setAz(prevRotation => prevRotation + deltaX * 0.15);
+      startY.current = event.clientY;
+      startX.current = event.clientX;
+    }
+  };
 
-  setTarget(positionVector);
-} 
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mousedown', handleMouseDown);
+
+    // Cleanup function to remove event listeners
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, [isDragging]);
+
+  return null; // No UI to render for this component
+};
+
 // Follow Body function
-export const followBody = (body, bodyRefs, zoomFactor, controls, camera, setTarget) => {
+export const followBody = (body, bodyRefs, zoomFactor, controls, camera, setTarget, alt, az) => {
   const positionVector = new THREE.Vector3();
   const matrixWorld = bodyRefs.current[body].matrixWorld;
   positionVector.setFromMatrixPosition(matrixWorld);
-  
-  // Set the target to the Earth's position
+
   controls.current.target.copy(positionVector);
+
+  // Radius
+  const radius = 50 * zoomFactor; 
+
+  // Altitude angle (phi)
+  const phi = ((-alt % 100) / 100) * Math.PI; 
   
-  // Move the camera towards the Earth's position directly
-  const cameraOffset = new THREE.Vector3(0, -50 * zoomFactor,10*zoomFactor); // Adjust as needed
+  // Azimuthal angle (theta)
+  const theta = (-az*0.015) % (2 * Math.PI); 
+
+  // Convert spherical coordinates to Cartesian coordinates
+  const cameraOffset = new THREE.Vector3();
+  cameraOffset.setFromSpherical(new THREE.Spherical(radius, phi, theta ));
+  
+  // Position the camera
   const targetCameraPosition = positionVector.clone().add(cameraOffset);
-  
   camera.position.copy(targetCameraPosition);
+  camera.lookAt(positionVector); 
   camera.updateProjectionMatrix();
   
+  controls.current.update();
+
   setTarget(positionVector);
-}
+};
+
+
+
 // Zooming while following body
 export const ZoomComponent = ({setZoomFactor, zoomFactor}) => {
  
-  const MIN_ZOOM = 0.25;
-  const MAX_ZOOM = 1000;
+  const MIN_ZOOM = 0;
+  const MAX_ZOOM = 100000;
   useEffect(() => {
     const handleWheel = (event) => {
       // Adjust the zoom factor based on the wheel delta
       const zoomAmount = event.deltaY * (0.01/10)*zoomFactor; // Adjust sensitivity
       setZoomFactor((prevZoomFactor) => {
           const newZoomFactor = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, prevZoomFactor + zoomAmount));
-          console.log(newZoomFactor)
         return newZoomFactor;
       });
-      console.log('New zoom factor:', zoomFactor);
     };
 
     window.addEventListener('wheel', handleWheel);
 
-    // Clean up the event listener on component unmount
     return () => {
       window.removeEventListener('wheel', handleWheel);
     };
   }, [zoomFactor]);
 
-
-  return null; // This component does not render anything itself
 };
 
 

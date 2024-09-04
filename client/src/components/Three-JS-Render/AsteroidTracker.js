@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Bounds, OrbitControls } from '@react-three/drei';
-import { Sun, Body, OrbitalCurve, InstancedAsteroids, initBodies, updateLabel,updateIcon, followBody, ZoomComponent} from "./BodyVisual";
+import { Sun, Body, OrbitalCurve, InstancedAsteroids, initBodies, updateLabel,updateIcon, followBody, ZoomComponent, CameraController} from "./BodyVisual";
 import { getCurrentD, orbitalData } from "./BodyPosition";
 import Stats from 'stats.js';
 import { asteroidData, pha, cometData } from './AsteroidData';
@@ -24,6 +24,8 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
     const controls = useRef();
     const [zoomFactor, setZoomFactor] = useState(1);
     const [followingBody, setFollowingBody] = useState(null);
+    const [alt, setAlt] = useState(0);
+    const [az, setAz] = useState(0);
 
 
     initBodies(celestials, d, t, bodies, orbitalCurves);
@@ -82,7 +84,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
                     updateIcon(bodyRefs.current[body], iconDiv, canvas, camera, iconPosition);
                 }
                 if(followingBody){
-                    followBody(followingBody, bodyRefs, zoomFactor, controls, camera, setTarget)
+                    followBody(followingBody, bodyRefs, zoomFactor, controls, camera, setTarget, alt, az)
                 }
         
             });
@@ -117,11 +119,12 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
                 <OrbitControls target={target} ref={controls}/>
                 <Animation />
                 <ZoomComponent setZoomFactor={setZoomFactor} zoomFactor={zoomFactor}/>
+                <CameraController setAlt={setAlt} alt={alt} az={az} setAz={setAz}/>
             </Canvas>
 
             {/* Text Labels */}
             {Object.entries(labeledBodies).map(([body,color]) => (
-                <div key={body} id={body} onClick={() => setFollowingBody(body)} className="absolute z-50 text-white" style={{color:color}}>
+                <div key={body} id={body} onClick={() => setFollowingBody(body)} className="absolute z-50 text-white hover:cursor-pointer" style={{color:color}}>
                     {body}
                 </div>
             ))} 
