@@ -51,7 +51,7 @@ export const CameraController = ({ alt, setAlt, az, setAz }) => {
 };
 
 // Follow Body function
-export const followBody = (body, bodyRefs, zoomFactor, controls, camera, setTarget, alt, az) => {
+export const followBody = (body, bodyRefs, zoomFactor, controls, camera, setTarget, alt, az, lerp) => {
   const positionVector = new THREE.Vector3();
   const matrixWorld = bodyRefs.current[body].matrixWorld;
   positionVector.setFromMatrixPosition(matrixWorld);
@@ -59,28 +59,49 @@ export const followBody = (body, bodyRefs, zoomFactor, controls, camera, setTarg
   controls.current.target.copy(positionVector);
 
   // Radius
-  const radius = 50 * zoomFactor; 
+  const radius = 5 * zoomFactor; 
 
   // Altitude angle (phi)
   const phi = ((-alt % 100) / 100) * Math.PI; 
   
   // Azimuthal angle (theta)
-  const theta = (-az*0.015) % (2 * Math.PI); 
+  const theta = (-az * 0.015) % (2 * Math.PI); 
 
   // Convert spherical coordinates to Cartesian coordinates
   const cameraOffset = new THREE.Vector3();
-  cameraOffset.setFromSpherical(new THREE.Spherical(radius, phi, theta ));
-  
-  // Position the camera
-  const targetCameraPosition = positionVector.clone().add(cameraOffset);
-  camera.position.copy(targetCameraPosition);
-  camera.lookAt(positionVector); 
-  camera.updateProjectionMatrix();
-  
-  controls.current.update();
+  cameraOffset.setFromSpherical(new THREE.Spherical(radius, phi, theta));
 
-  setTarget(positionVector);
+  // Target camera position
+  const targetCameraPosition = positionVector.clone().add(cameraOffset);
+
+  // Check distance threshold to stop lerping
+  const distanceThreshold = 0.01;  // Small distance to check if we've arrived
+  const distanceToTarget = camera.position.distanceTo(targetCameraPosition);
+
+  // If lerping is enabled, smoothly transition to the target position
+  if (lerp && distanceToTarget > distanceThreshold) {
+    // Adjust the lerp factor to a reasonable speed
+    camera.position.lerp(targetCameraPosition, 0.05);
+    camera.lookAt(positionVector);
+    camera.updateProjectionMatrix();
+    controls.current.update();
+
+    setTarget(positionVector);
+
+    // Still lerping
+    return true;
+  } else {
+    // Instantly move if not lerping or if within the threshold
+    camera.position.copy(targetCameraPosition);
+    camera.lookAt(positionVector);
+    camera.updateProjectionMatrix();
+    controls.current.update();
+    // Lerping is done
+    return false;
+  }
 };
+
+
 
 
 
@@ -127,7 +148,7 @@ export const initBodies = (celestials,d,t,bodies,orbitalCurves) =>{
 
 
 // Instance Mesh Asteroids
-export const InstancedAsteroids = ({asteroidCount, d, t, data, pha=false, comet=false}) => {
+export const InstancedAsteroids = ({asteroidCount, d, t, data, pha=false, comet=false, size}) => {
   const meshRef = useRef();
   let color;
   let opacity;
@@ -135,15 +156,15 @@ export const InstancedAsteroids = ({asteroidCount, d, t, data, pha=false, comet=
   if(pha){
     color = "#fc0352";
     opacity = 1;
-    radius = 1.5;
+    radius = size * 1.5;
   }else if(comet){
     color = "#ffffff";
     opacity = 0.8;
-    radius = 3;
+    radius = size*3;
   }else{
     color = "#144be3";
     opacity = 0.8;
-    radius = 1.35;
+    radius = size * 1.35;
   }
   const AsteroidGeometry = new THREE.SphereGeometry(radius, 32, 32); // Radius of 1
 

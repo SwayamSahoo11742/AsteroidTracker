@@ -7,7 +7,7 @@ import { getCurrentD, orbitalData } from "./BodyPosition";
 import Stats from 'stats.js';
 import { asteroidData, pha, cometData } from './AsteroidData';
 
-const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) => {
+const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, target, setTarget, followingBody, setFollowingBody}) => {
     const [labeledBodies, setLabeledBodies] = useState({"Mercury":"#dabaff", "Venus":"#fa9a41", "Earth":"#1fb0e0", "Mars":"#e0521f", "Jupiter":"#f2a285", "Saturn":"#e0d665", "Uranus":"#8ee6e4", "Neptune":"#4534fa"});
     const asteroidCount = 35469;
     const PHACount = 2440;
@@ -20,12 +20,16 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
     const canvas = document.getElementById("canvas");
     const addDays = (now, days) => new Date(new Date(now).setDate(now.getDate() + days));
     const bodyRefs = useRef({}); // Create an array of refs
-    const [target, setTarget] = useState(new THREE.Vector3(0,0,0))
+
     const controls = useRef();
     const [zoomFactor, setZoomFactor] = useState(1);
-    const [followingBody, setFollowingBody] = useState(null);
+
     const [alt, setAlt] = useState(0);
     const [az, setAz] = useState(0);
+
+    const [lerp, setLerp] = useState(0);
+
+    const [asteroidSize, setAsteroidSize] = useState(1)
 
 
     initBodies(celestials, d, t, bodies, orbitalCurves);
@@ -46,19 +50,6 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
         bodyRefs.current = updatedRefs;
     }, [bodies]);
 
-    // Initialize Stats.js
-    const statsRef = useRef(null);
-
-    useEffect(() => {
-        statsRef.current = new Stats();
-        statsRef.current.showPanel(0); // 0: FPS, 1: MS/frame, 2: Memory
-        document.body.appendChild(statsRef.current.dom);
-
-        return () => {
-            document.body.removeChild(statsRef.current.dom);
-        };
-    }, []);
-
     
 
     const Animation = () => {
@@ -67,10 +58,6 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
         useFrame(() => {
             setViewDate(addDays(datenow, t.current));
             t.current += Number(speed.current) / 30;
-        
-            // Update stats
-            statsRef.current.begin();
-            statsRef.current.end();
         
             // Updating labels and icons
             Object.entries(labeledBodies).forEach(([body, color]) => {
@@ -83,22 +70,35 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
                     updateLabel(bodyRefs.current[body], bodyDiv, canvas, camera, textPosition);
                     updateIcon(bodyRefs.current[body], iconDiv, canvas, camera, iconPosition);
                 }
-                if(followingBody){
-                    followBody(followingBody, bodyRefs, zoomFactor, controls, camera, setTarget, alt, az)
-                }
         
+                // Check if we are following a body
+                if (followingBody) {
+                    // Perform lerping with a threshold check
+                    const isLerping = followBody(followingBody, bodyRefs, zoomFactor, controls, camera, setTarget, alt, az, lerp);
+        
+                    // Only log once
+                    if (lerp && isLerping) {
+                        console.log("IM LERPING");
+                    }
+        
+                    // Stop lerping once the camera has reached close to the target
+                    if (!isLerping) {
+                        setLerp(0); // Stop lerping
+                    }
+                }
             });
         });
+        
+        
     };
     
-
 
     return (
         <>
             <Canvas
                 id='canvas'
                 gl={{ alpha: false, antialias: true }} style={{ background: 'black' }}
-                camera={{ position: [0, 0, 150], far: 100000 }} // Adjusted camera position
+                camera={{ position: [0, 0, 150], far: 100000, near:0.0001}} // Adjusted camera position
             >
                 <Sun />
                 {Object.entries(bodies).map(([name, body]) => (
@@ -113,9 +113,9 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
                     />
                 ))}
                 {orbitalCurves}
-                {showNEO ? <InstancedAsteroids asteroidCount={asteroidCount} d={d} t={t} data={asteroidData} pha={false} /> : null}
-                {!showNEO && !showPHA ? null : <InstancedAsteroids asteroidCount={PHACount} d={d} t={t} data={pha} pha={showPHA} />}
-                {showComet? <InstancedAsteroids asteroidCount={cometCount} d={d} t={t} data={cometData} pha={false} comet={true}/> : null}
+                {showNEO ? <InstancedAsteroids asteroidCount={asteroidCount} d={d} t={t} data={asteroidData} pha={false} size={asteroidSize}/> : null}
+                {!showNEO && !showPHA ? null : <InstancedAsteroids asteroidCount={PHACount} d={d} t={t} data={pha} pha={showPHA} size={asteroidSize}/>}
+                {showComet? <InstancedAsteroids asteroidCount={cometCount} d={d} t={t} data={cometData} pha={false} comet={true} size={asteroidSize}/> : null}
                 <OrbitControls target={target} ref={controls}/>
                 <Animation />
                 <ZoomComponent setZoomFactor={setZoomFactor} zoomFactor={zoomFactor}/>
@@ -124,7 +124,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet}) 
 
             {/* Text Labels */}
             {Object.entries(labeledBodies).map(([body,color]) => (
-                <div key={body} id={body} onClick={() => setFollowingBody(body)} className="absolute z-50 text-white hover:cursor-pointer" style={{color:color}}>
+                <div key={body} id={body} onClick={() => {speed.current = 0;setAsteroidSize(0.05);setFollowingBody(body); setLerp(1); setZoomFactor(0.0009)}} className="absolute z-50 text-white hover:cursor-pointer" style={{color:color}}>
                     {body}
                 </div>
             ))} 
