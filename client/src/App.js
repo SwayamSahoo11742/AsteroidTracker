@@ -24,6 +24,7 @@ const App = () => {
     const [viewDate, setViewDate] = useState(new Date()); 
     const [target, setTarget] = useState(new THREE.Vector3(0,0,0))
     const [followingBody, setFollowingBody] = useState(null);    
+    const [asteroidSize, setAsteroidSize] = useState(1);
     const t = useRef(0);
 
     return (
@@ -31,7 +32,7 @@ const App = () => {
         <div className="relative h-screen bg-gradient-to-r from-blue-400 to-purple-500">
             {/* 3D Scene */}
             <div className="absolute inset-0 z-10">
-                <AsteroidTracker speed={speed} setViewDate={setViewDate} t={t} showNEO={showNEO} showPHA={showPHA} showComet={showComet} target={target} followingBody={followingBody} setTarget={setTarget} setFollowingBody={setFollowingBody}/>
+                <AsteroidTracker speed={speed} setViewDate={setViewDate} t={t} showNEO={showNEO} showPHA={showPHA} showComet={showComet} target={target} followingBody={followingBody} setTarget={setTarget} setFollowingBody={setFollowingBody} setAsteroidSize={setAsteroidSize} asteroidSize={asteroidSize}/>
             </div>
 
             {/* UI overlay */}
@@ -50,7 +51,7 @@ const App = () => {
             </div>
 
             <div className='absolute top-0 left-0 z-20 m-4'>
-                {followingBody ? <TargetRemove setTarget={setTarget} setFollowingBody={setFollowingBody}/>: null}
+                {followingBody ? <TargetRemove setTarget={setTarget} setFollowingBody={setFollowingBody} setAsteroidSize={setAsteroidSize}/>: null}
             </div>
         </div>
         </>

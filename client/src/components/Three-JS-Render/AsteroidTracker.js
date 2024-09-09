@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Bounds, OrbitControls } from '@react-three/drei';
-import { Sun, Body, OrbitalCurve, InstancedAsteroids, initBodies, updateLabel,updateIcon, followBody, ZoomComponent, CameraController} from "./BodyVisual";
+import { Sun, Body, OrbitalCurve, InstancedAsteroids, initBodies, updateLabel,updateIcon, followBody, ZoomComponent, CameraController, followBodyClickEvent, addLabel, removeLabel} from "./BodyVisual";
 import { getCurrentD, orbitalData } from "./BodyPosition";
 import Stats from 'stats.js';
 import { asteroidData, pha, cometData } from './AsteroidData';
 
-const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, target, setTarget, followingBody, setFollowingBody}) => {
+const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, target, setTarget, followingBody, setFollowingBody, setAsteroidSize, asteroidSize}) => {
     const [labeledBodies, setLabeledBodies] = useState({"Mercury":"#dabaff", "Venus":"#fa9a41", "Earth":"#1fb0e0", "Mars":"#e0521f", "Jupiter":"#f2a285", "Saturn":"#e0d665", "Uranus":"#8ee6e4", "Neptune":"#4534fa"});
     const asteroidCount = 35469;
     const PHACount = 2440;
@@ -29,7 +29,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
 
     const [lerp, setLerp] = useState(0);
 
-    const [asteroidSize, setAsteroidSize] = useState(1)
+    
 
 
     initBodies(celestials, d, t, bodies, orbitalCurves);
@@ -76,16 +76,14 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
                     // Perform lerping with a threshold check
                     const isLerping = followBody(followingBody, bodyRefs, zoomFactor, controls, camera, setTarget, alt, az, lerp);
         
-                    // Only log once
-                    if (lerp && isLerping) {
-                        console.log("IM LERPING");
-                    }
-        
                     // Stop lerping once the camera has reached close to the target
                     if (!isLerping) {
                         setLerp(0); // Stop lerping
                     }
                 }
+
+                addLabel(' (2024 QS)', asteroidData, celestials, setLabeledBodies)
+                removeLabel(' (2024 QS)', celestials, setLabeledBodies)
             });
         });
         
@@ -124,7 +122,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
 
             {/* Text Labels */}
             {Object.entries(labeledBodies).map(([body,color]) => (
-                <div key={body} id={body} onClick={() => {speed.current = 0;setAsteroidSize(0.05);setFollowingBody(body); setLerp(1); setZoomFactor(0.0009)}} className="absolute z-50 text-white hover:cursor-pointer" style={{color:color}}>
+                <div key={body} id={body} onClick={() => {followBodyClickEvent(speed, setAsteroidSize, setFollowingBody, setLerp, setZoomFactor, body)}} className="absolute z-50 text-white hover:cursor-pointer" style={{color:color}}>
                     {body}
                 </div>
             ))} 

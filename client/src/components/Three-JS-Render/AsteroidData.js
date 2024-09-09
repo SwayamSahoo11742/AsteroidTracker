@@ -3,7 +3,7 @@ import data_asteroid from "./asteroids.json";
 import data_comet from "./comets.json";
 import data_pha from "./phas.json"
 
-const n2_ = (str) => str.replace(/\s+/g, '_');
+const n2_ = (str) => str.replace(/\s+/g, ' ');
 
 const createAsteroids = (lst, comets, phas) => {
     let asts = [];

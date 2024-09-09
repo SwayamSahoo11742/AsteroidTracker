@@ -7,6 +7,35 @@ import React, {useMemo, useEffect,useState, useRef, forwardRef} from "react"
 import { asteroidData } from "./AsteroidData";
 
 
+
+export const addLabel = (name, data, celestials, setLabeledBodies) =>{
+  const body = data.find(item => item.full_name === name);
+  celestials[name] = body;
+
+  setLabeledBodies(prevBodies => ({
+    ...prevBodies, [name]: "#ffffff"     
+  }));
+  
+}
+
+export const removeLabel = (name, celestials, setLabeledBodies) => {
+    delete celestials[name];
+    setLabeledBodies(prevBodies => {
+      const updatedBodies = { ...prevBodies };
+      delete updatedBodies[name];              
+      return updatedBodies;                    
+    });
+}
+
+
+export const followBodyClickEvent = (speed, setAsteroidSize, setFollowingBody, setLerp, setZoomFactor, body) =>{
+  speed.current = 0;
+  setAsteroidSize(0.05);
+  setFollowingBody(body);
+  setLerp(1);
+  setZoomFactor(0.0009)
+}
+
 export const CameraController = ({ alt, setAlt, az, setAz }) => {
   const [isDragging, setIsDragging] = useState(false);
   const startY = useRef(0);
