@@ -3,6 +3,7 @@ import { Slider } from './components/UI/slider';
 import { Timeline } from './components/UI/timeline';
 import { Menu } from './components/UI/controlMenu';
 import { TargetRemove } from './components/UI/targetRemove';
+import { Search } from './components/UI/search';
 import styles from "./index.css";
 import React, { useState, useRef } from 'react';
 import * as THREE from 'three';
@@ -26,13 +27,15 @@ const App = () => {
     const [followingBody, setFollowingBody] = useState(null);    
     const [asteroidSize, setAsteroidSize] = useState(1);
     const t = useRef(0);
+    const [labeledBodies, setLabeledBodies] = useState({"Mercury":"#dabaff", "Venus":"#fa9a41", "Earth":"#1fb0e0", "Mars":"#e0521f", "Jupiter":"#f2a285", "Saturn":"#e0d665", "Uranus":"#8ee6e4", "Neptune":"#4534fa"});
+
 
     return (
         <>
         <div className="relative h-screen bg-gradient-to-r from-blue-400 to-purple-500">
             {/* 3D Scene */}
             <div className="absolute inset-0 z-10">
-                <AsteroidTracker speed={speed} setViewDate={setViewDate} t={t} showNEO={showNEO} showPHA={showPHA} showComet={showComet} target={target} followingBody={followingBody} setTarget={setTarget} setFollowingBody={setFollowingBody} setAsteroidSize={setAsteroidSize} asteroidSize={asteroidSize}/>
+                <AsteroidTracker speed={speed} setViewDate={setViewDate} t={t} showNEO={showNEO} showPHA={showPHA} showComet={showComet} target={target} followingBody={followingBody} setTarget={setTarget} setFollowingBody={setFollowingBody} setAsteroidSize={setAsteroidSize} asteroidSize={asteroidSize} labeledBodies={labeledBodies} setLabeledBodies={setLabeledBodies}/>
             </div>
 
             {/* UI overlay */}
@@ -50,8 +53,14 @@ const App = () => {
                 <Menu setShowNEO={setShowNEO} setShowPHA={setShowPHA} showNEO={showNEO} showComet={showComet} setShowComet={setShowComet}/>
             </div>
 
+            {/* To unfollow following body */}
             <div className='absolute top-0 left-0 z-20 m-4'>
                 {followingBody ? <TargetRemove setTarget={setTarget} setFollowingBody={setFollowingBody} setAsteroidSize={setAsteroidSize}/>: null}
+            </div>
+
+            {/* Search Bar */}
+            <div className='absolute top-0 right-0 z-20 m-4 w-4/12'>
+                <Search setLabeledBodies={setLabeledBodies}/>
             </div>
         </div>
         </>

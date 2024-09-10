@@ -46,3 +46,17 @@ const createAsteroids = (lst, comets, phas) => {
 
 export const { asts: asteroidData, pha, cometData } = createAsteroids(data_asteroid, data_comet, data_pha);
 
+const combineData = (dataList, type) => {
+    return dataList.map(item => ({
+        name: item.full_name, 
+        type: type,
+        checked: false 
+    }));
+};
+
+// Combine all data into one array
+export const items = [
+    ...combineData(cometData, 'Comet'),
+    ...combineData(pha, 'PHA'),
+    ...combineData(asteroidData, 'Asteroid')
+];

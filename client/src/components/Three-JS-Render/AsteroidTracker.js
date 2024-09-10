@@ -7,14 +7,15 @@ import { getCurrentD, orbitalData } from "./BodyPosition";
 import Stats from 'stats.js';
 import { asteroidData, pha, cometData } from './AsteroidData';
 
-const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, target, setTarget, followingBody, setFollowingBody, setAsteroidSize, asteroidSize}) => {
-    const [labeledBodies, setLabeledBodies] = useState({"Mercury":"#dabaff", "Venus":"#fa9a41", "Earth":"#1fb0e0", "Mars":"#e0521f", "Jupiter":"#f2a285", "Saturn":"#e0d665", "Uranus":"#8ee6e4", "Neptune":"#4534fa"});
+
+
+export const celestials = orbitalData;
+const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, target, setTarget, followingBody, setFollowingBody, setAsteroidSize, asteroidSize, labeledBodies, setLabeledBodies}) => {
     const asteroidCount = 35469;
     const PHACount = 2440;
     const cometCount = 205;
     const d = getCurrentD(new Date());
     const datenow = new Date();
-    const celestials = orbitalData;
     const bodies = {};
     const orbitalCurves = [];
     const canvas = document.getElementById("canvas");
