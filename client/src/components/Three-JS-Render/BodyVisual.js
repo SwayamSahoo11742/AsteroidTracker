@@ -7,17 +7,19 @@ import React, {useMemo, useEffect,useState, useRef, forwardRef} from "react"
 import { asteroidData } from "./AsteroidData";
 
 
-
+// Add label function, to add new bodies
 export const addLabel = (name, data, celestials, setLabeledBodies) =>{
   const body = data.find(item => item.full_name === name);
   celestials[name] = body;
 
   setLabeledBodies(prevBodies => ({
-    ...prevBodies, [name]: "#ffffff"     
+    ...prevBodies, [name]: "#d73ce8"     
   }));
   
 }
 
+
+// Remove label function to remove newly added bodies
 export const removeLabel = (name, celestials, setLabeledBodies) => {
     delete celestials[name];
     setLabeledBodies(prevBodies => {
@@ -27,7 +29,7 @@ export const removeLabel = (name, celestials, setLabeledBodies) => {
     });
 }
 
-
+// On click event function for following bodies
 export const followBodyClickEvent = (speed, setAsteroidSize, setFollowingBody, setLerp, setZoomFactor, body) =>{
   speed.current = 0;
   setAsteroidSize(0.05);
@@ -36,6 +38,7 @@ export const followBodyClickEvent = (speed, setAsteroidSize, setFollowingBody, s
   setZoomFactor(0.0009)
 }
 
+// to be able to control camera angle in follow mode using altitude and azimuth angles
 export const CameraController = ({ alt, setAlt, az, setAz }) => {
   const [isDragging, setIsDragging] = useState(false);
   const startY = useRef(0);
@@ -52,6 +55,7 @@ export const CameraController = ({ alt, setAlt, az, setAz }) => {
       const deltaY = event.clientY - startY.current;
       const deltaX = event.clientX - startX.current;
 
+      // Set new alt and az values
       setAlt(prevRotation => prevRotation + deltaY * 0.15);
       setAz(prevRotation => prevRotation + deltaX * 0.15);
       startY.current = event.clientY;
@@ -76,7 +80,7 @@ export const CameraController = ({ alt, setAlt, az, setAz }) => {
     };
   }, [isDragging]);
 
-  return null; // No UI to render for this component
+  return null; 
 };
 
 // Follow Body function
@@ -255,12 +259,22 @@ export const Body = forwardRef(({ obj, d, t, mesh, radius }, ref) => {
     return [x, y, z];
   }, [obj, d, t]);
 
-  return (
-    <mesh position={position} ref={ref}> 
+
+  if(mesh !== "asteroid.jpg"){
+    return (
+      <mesh position={position} ref={ref}> 
       <sphereGeometry args={[radius, 32, 16]} />
       <meshBasicMaterial attach="material" map={texture} />
     </mesh>
-  );
+    );
+  }else{
+    return (
+      <mesh position={position} ref={ref}> 
+      <sphereGeometry args={[0.0000001, 32, 16]} />
+      <meshBasicMaterial attach="material" map={texture} />
+    </mesh>
+    );
+  }
 });
 const KM = 149.6;
 

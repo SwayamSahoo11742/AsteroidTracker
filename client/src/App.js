@@ -59,7 +59,7 @@ const App = () => {
             </div>
 
             {/* Search Bar */}
-            <div className='absolute top-0 right-0 z-20 m-4 w-4/12'>
+            <div className='absolute top-0 right-0 z-20 w-4/12 mt-4' style={{marginRight:"5%"}} >
                 <Search setLabeledBodies={setLabeledBodies}/>
             </div>
         </div>

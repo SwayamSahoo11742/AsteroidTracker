@@ -3,8 +3,12 @@ import data_asteroid from "./asteroids.json";
 import data_comet from "./comets.json";
 import data_pha from "./phas.json"
 
+
+// Reduction of Spaces
 const n2_ = (str) => str.replace(/\s+/g, ' ');
 
+
+// Create JSON datas for asteroids, PHAs and comets
 const createAsteroids = (lst, comets, phas) => {
     let asts = [];
     let pha = [];
@@ -38,14 +42,14 @@ const createAsteroids = (lst, comets, phas) => {
             n2_(data_comet.full_name), 0xf0f0f0, "asteroid.jpg", false, 1, false
         ));
     }
-    console.log(phas)
-
 
     return { asts, pha, cometData };
 };
 
 export const { asts: asteroidData, pha, cometData } = createAsteroids(data_asteroid, data_comet, data_pha);
 
+
+// Combine data list for search function
 const combineData = (dataList, type) => {
     return dataList.map(item => ({
         name: item.full_name, 

@@ -58,7 +58,6 @@ export const Search = ({setLabeledBodies}) => {
     };
 
     const handleSubmit = (e) => {
-        console.log('FREAK')
         e.preventDefault();
         // Handle form submit, if needed (e.g., trigger an API call or another action)
     };

@@ -7,8 +7,7 @@ import { getCurrentD, orbitalData } from "./BodyPosition";
 import Stats from 'stats.js';
 import { asteroidData, pha, cometData } from './AsteroidData';
 
-
-
+// Celestial dictionary
 export const celestials = orbitalData;
 const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, target, setTarget, followingBody, setFollowingBody, setAsteroidSize, asteroidSize, labeledBodies, setLabeledBodies}) => {
     const asteroidCount = 35469;
@@ -32,7 +31,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
 
     
 
-
+    // Initialize Bodies
     initBodies(celestials, d, t, bodies, orbitalCurves);
 
     
@@ -52,11 +51,16 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
     }, [bodies]);
 
     
-
+    // Animation component 
     const Animation = () => {
+
+        // Camera ref
         const { camera } = useThree();
         
+        // Frame wise animation
         useFrame(() => {
+
+            // Update speed and date 
             setViewDate(addDays(datenow, t.current));
             t.current += Number(speed.current) / 30;
         
@@ -82,13 +86,8 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
                         setLerp(0); // Stop lerping
                     }
                 }
-
-                addLabel(' (2024 QS)', asteroidData, celestials, setLabeledBodies)
-                removeLabel(' (2024 QS)', celestials, setLabeledBodies)
             });
         });
-        
-        
     };
     
 
@@ -100,6 +99,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
                 camera={{ position: [0, 0, 150], far: 100000, near:0.0001}} // Adjusted camera position
             >
                 <Sun />
+                {/* main bodies (planets) */}
                 {Object.entries(bodies).map(([name, body]) => (
                     <Body
                         key={name}
@@ -111,10 +111,15 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
                         ref={el => bodyRefs.current[name] = el}
                     />
                 ))}
+                {/* Orbits */}
                 {orbitalCurves}
+
+                {/* Asteroids, comets and PHAs */}
                 {showNEO ? <InstancedAsteroids asteroidCount={asteroidCount} d={d} t={t} data={asteroidData} pha={false} size={asteroidSize}/> : null}
                 {!showNEO && !showPHA ? null : <InstancedAsteroids asteroidCount={PHACount} d={d} t={t} data={pha} pha={showPHA} size={asteroidSize}/>}
                 {showComet? <InstancedAsteroids asteroidCount={cometCount} d={d} t={t} data={cometData} pha={false} comet={true} size={asteroidSize}/> : null}
+
+                {/* Camera controls and animation */}
                 <OrbitControls target={target} ref={controls}/>
                 <Animation />
                 <ZoomComponent setZoomFactor={setZoomFactor} zoomFactor={zoomFactor}/>
