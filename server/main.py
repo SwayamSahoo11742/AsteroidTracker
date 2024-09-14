@@ -1,9 +1,12 @@
 import csv
 import json
 
-with open('phas.csv') as f:
-    reader = csv.DictReader(f)
-    rows = list(reader)
+datas = ["phas", "asteroids", "comets"]
 
-with open('phas.json', 'w') as f:
-    json.dump(rows, f)
+for data in datas:
+    with open(f'dataIN/{data}.csv') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    with open(f'dataOUT/{data}.json', 'w') as f:
+        json.dump(rows, f)

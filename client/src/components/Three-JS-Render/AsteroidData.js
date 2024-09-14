@@ -20,7 +20,8 @@ const createAsteroids = (lst, comets, phas) => {
         asts.push(new Asteroid(
             Number(data_asteroid.epoch), Number(data_asteroid.om), Number(data_asteroid.i), Number(data_asteroid.w),
             Number(data_asteroid.a), Number(data_asteroid.e), Number(data_asteroid.ma), Number(data_asteroid.per),
-            n2_(data_asteroid.full_name), 0xf0f0f0, "asteroid.jpg", false, 1, false
+            n2_(data_asteroid.full_name), 0xf0f0f0, "asteroid.jpg", false, 1, false, 
+            Number(data_asteroid.rot_per), Number(data_asteroid.albedo), data_asteroid.producer, Number(data_asteroid.diameter)
         ));
 
     }
@@ -30,7 +31,8 @@ const createAsteroids = (lst, comets, phas) => {
         pha.push(new Asteroid(
             Number(data_pha.epoch), Number(data_pha.om), Number(data_pha.i), Number(data_pha.w),
             Number(data_pha.a), Number(data_pha.e), Number(data_pha.ma), Number(data_pha.per),
-            n2_(data_pha.full_name), 0xf0f0f0, "asteroid.jpg", false, 1, false
+            n2_(data_pha.full_name), 0xf0f0f0, "asteroid.jpg", false, 1, false,
+            Number(data_pha.rot_per), Number(data_pha.albedo), data_pha.producer, Number(data_pha.diameter)
         ));
     }
 
@@ -39,7 +41,8 @@ const createAsteroids = (lst, comets, phas) => {
         cometData.push(new Asteroid(
             Number(data_comet.epoch), Number(data_comet.om), Number(data_comet.i), Number(data_comet.w),
             Number(data_comet.a), Number(data_comet.e), Number(data_comet.ma), Number(data_comet.per),
-            n2_(data_comet.full_name), 0xf0f0f0, "asteroid.jpg", false, 1, false
+            n2_(data_comet.full_name), 0xf0f0f0, "asteroid.jpg", false, 1, false,
+            Number(data_comet.rot_per), Number(data_comet.albedo), data_comet.producer, Number(data_comet.diameter)
         ));
     }
 
@@ -64,3 +67,4 @@ export const items = [
     ...combineData(pha, 'PHA'),
     ...combineData(asteroidData, 'Asteroid')
 ];
+

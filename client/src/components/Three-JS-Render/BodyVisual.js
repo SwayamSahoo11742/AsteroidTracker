@@ -5,6 +5,7 @@ import { Earth } from "./BodyPosition";
 import { Canvas, useLoader, useFrame} from '@react-three/fiber'
 import React, {useMemo, useEffect,useState, useRef, forwardRef} from "react"
 import { asteroidData } from "./AsteroidData";
+import { celestials } from "./AsteroidTracker";
 
 
 // Add label function, to add new bodies
@@ -30,12 +31,22 @@ export const removeLabel = (name, celestials, setLabeledBodies) => {
 }
 
 // On click event function for following bodies
-export const followBodyClickEvent = (speed, setAsteroidSize, setFollowingBody, setLerp, setZoomFactor, body) =>{
+export const followBodyClickEvent = (speed, setAsteroidSize, setFollowingBody, setLerp, setZoomFactor, body, bodyRefs, setDisplayData) =>{
   speed.current = 0;
   setAsteroidSize(0.05);
   setFollowingBody(body);
   setLerp(1);
   setZoomFactor(0.0009)
+  console.log(celestials[body])
+  setDisplayData({
+    name:body,
+    diameter:celestials[body].diameter,
+    orbPer: celestials[body].per,
+    rotPer: celestials[body].rotPer,
+    producer: celestials[body].producer,
+    albedo: celestials[body].albedo
+
+  })
 }
 
 // to be able to control camera angle in follow mode using altitude and azimuth angles

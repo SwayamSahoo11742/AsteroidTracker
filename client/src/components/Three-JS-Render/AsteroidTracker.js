@@ -9,7 +9,7 @@ import { asteroidData, pha, cometData } from './AsteroidData';
 
 // Celestial dictionary
 export const celestials = orbitalData;
-const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, target, setTarget, followingBody, setFollowingBody, setAsteroidSize, asteroidSize, labeledBodies, setLabeledBodies}) => {
+const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, target, setTarget, followingBody, setFollowingBody, setAsteroidSize, asteroidSize, labeledBodies, setDisplayData}) => {
     const asteroidCount = 35469;
     const PHACount = 2440;
     const cometCount = 205;
@@ -128,7 +128,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
 
             {/* Text Labels */}
             {Object.entries(labeledBodies).map(([body,color]) => (
-                <div key={body} id={body} onClick={() => {followBodyClickEvent(speed, setAsteroidSize, setFollowingBody, setLerp, setZoomFactor, body)}} className="absolute z-50 text-white hover:cursor-pointer" style={{color:color}}>
+                <div key={body} id={body} onClick={() => {followBodyClickEvent(speed, setAsteroidSize, setFollowingBody, setLerp, setZoomFactor, body, celestials, setDisplayData)}} className="absolute z-50 text-white hover:cursor-pointer" style={{color:color}}>
                     {body}
                 </div>
             ))} 

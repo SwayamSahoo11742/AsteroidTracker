@@ -26,7 +26,7 @@ export class Celestial {
     // 1: Initial value
     // 2: Change rate
 
-    constructor(RAAN1 = 0, RAAN2 = 0, I1 = 0, I2 = 0, AOP1 = 0, AOP2 = 0, A1 = 0, A2 = 0, E01 = 0, E02 = 0, M1 = 0, M2 = 0, color = 0xffffff, mesh, orbit=false, radius=5, label=false) {
+    constructor(RAAN1 = 0, RAAN2 = 0, I1 = 0, I2 = 0, AOP1 = 0, AOP2 = 0, A1 = 0, A2 = 0, E01 = 0, E02 = 0, M1 = 0, M2 = 0, color = 0xffffff, mesh, orbit=false, radius=5, label=false, period, rotPer, albedo, producer, diameter) {
         this.RAAN1 = RAAN1;
         this.RAAN2 = RAAN2;
         this.I1 = I1;
@@ -45,6 +45,12 @@ export class Celestial {
         this.mesh = mesh;
         this.radius = radius
         this.label = label;
+
+        this.per = period;
+        this.rotPer = rotPer;
+        this.albedo = albedo;
+        this.producer = producer;
+        this.diameter = diameter;
     }
 
     // Normalizing degreens to (0,360)
@@ -129,13 +135,18 @@ export class Celestial {
 export class Asteroid extends Celestial {
     // epochJD : Epoch in Julian date
     // Mx : Mean anomaly at the time of epoch
-    constructor(epochJD, RAANx, i, AOP, a, e, Mx, P, full_name, color, mesh,orbit, radius, label) {
+    constructor(epochJD, RAANx, i, AOP, a, e, Mx, P, full_name, color, mesh,orbit, radius, label, rotPer, albedo, producer, diameter) {
         const day = epochJD - 2451543.5; 
         const Mc = 360.0 / P; // Mean motion
         const M0 = (Mx - Mc * day) % 360; // Mean anomalh
         super(RAANx, 0.0, i, 0.0, AOP, 0, a, 0, e, 0, M0, Mc, color, mesh, orbit, radius, label);
         this.full_name = full_name;
         this.distance = 9999999;
+        this.per = P;
+        this.rotPer = rotPer;
+        this.albedo = albedo;
+        this.producer = producer;
+        this.diameter = diameter;
 
     }
     }
@@ -148,6 +159,11 @@ export class Earth{
         this.orbit = true;
         this.radius = 1;
         this.label = true;
+        this.per = 365.2;
+        this.rotPer = 23.9;
+        this.producer = "NASA";
+        this.albedo = 0.434;
+        this.diameter = 12756
     }
     P(){
         return 365.256898326;
@@ -201,7 +217,9 @@ export const orbitalData = {
       0.205635, 5.59E-10,
       168.6562, 4.0923344368,
       0xdabaff, "Mercury.jpg", true,
-      0.002440, true),
+      0.002440, true,
+      88, 1406.6, 0.142, "NASA", 4879
+    ),
     
     Venus : new Celestial(
       76.6799, 2.46590E-5,
@@ -211,7 +229,9 @@ export const orbitalData = {
       0.006773, - 1.302E-9,
       48.0052, 1.6021302244,
       0xfa9a41, "Venus.jpg", true,
-      0.006052, true),
+      0.006052, true,
+      224.7,-5823.5,0.689, "NASA", 12104
+    ),
       Earth: new Earth(),
   
       Mars: new Celestial(
@@ -222,7 +242,9 @@ export const orbitalData = {
         0.093405, 2.516E-9,
         18.6021, 0.5240207766,
         0xe0521f, "Mars.jpg", true,
-        0.003396, true),
+        0.003396, true,
+        687.0, 24.6, 0.170, "NASA", 6792
+    ),
   
       Jupiter : new Celestial(
         100.4542, 2.76854E-5,
@@ -232,7 +254,9 @@ export const orbitalData = {
         0.048498, 4.469E-9,
         19.8950, 0.0830853001,
         0xf2a285, "Jupiter.jpg", true,
-        0.071492, true),
+        0.071492, true,
+        4331.0, 9.9, 0.538, "NASA", 142984
+    ),
       
       Saturn : new Celestial(
         113.6634, 2.38980E-5,
@@ -242,7 +266,9 @@ export const orbitalData = {
         0.055546, -9.499E-9,
         316.9670, 0.0334442282,
         0xe0d665, "Saturn.jpg", true,
-        0.060268, true),
+        0.060268, true,
+        10747,10.7 , 0.499, "NASA", 120536
+    ),
       
       Uranus : new Celestial(
         74.0005, 1.3978E-5,
@@ -252,7 +278,8 @@ export const orbitalData = {
         0.047318, 7.45E-9,
         142.5905, 0.011725806,
         0x8ee6e4, "Uranus.jpg", true,
-        0.025559, true
+        0.025559, true,
+        30589, -17.2,0.488, "NASA", 51118
       ),
       
       Neptune : new Celestial(
@@ -263,7 +290,8 @@ export const orbitalData = {
         0.008606, 2.15E-9,
         260.2471, 0.005995147,
         0x4534fa, "Neptune.jpg", true,
-        0.024764, true
+        0.024764, true,
+        59800, 16.1, 0.442, "NASA", 49528
       )
   }
 
