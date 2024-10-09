@@ -2,14 +2,20 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Bounds, OrbitControls } from '@react-three/drei';
-import { Sun, Body, OrbitalCurve, InstancedAsteroids, initBodies, updateLabel,updateIcon, followBody, ZoomComponent, CameraController, followBodyClickEvent, addLabel, removeLabel} from "./BodyVisual";
 import { getCurrentD, orbitalData } from "./BodyPosition";
-import Stats from 'stats.js';
-import { asteroidData, pha, cometData } from './AsteroidData';
+import { updateIcon, updateLabel } from './utils/label';
+import { ZoomComponent, CameraController } from './utils/cameraControls';
+import { asteroidData, pha, cometData } from './data/AsteroidData';
+import { followBody, followBodyClickEvent } from './utils/followBody';
+import { initBodies, Body } from './components/Body';
+import { Sun } from './components/Sun';
+import { InstancedNEOS } from './components/InstancedNEOS.js';
+
+
 
 // Celestial dictionary
 export const celestials = orbitalData;
-const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, target, setTarget, followingBody, setFollowingBody, setAsteroidSize, asteroidSize, labeledBodies, setDisplayData}) => {
+const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, target, setTarget, followingBody, setFollowingBody, setAsteroidSize, asteroidSize, labeledBodies, setDisplayData, setImpactData,setCloseApproachData}) => {
     const asteroidCount = 35469;
     const PHACount = 2440;
     const cometCount = 205;
@@ -80,6 +86,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
                 if (followingBody) {
                     // Perform lerping with a threshold check
                     const isLerping = followBody(followingBody, bodyRefs, zoomFactor, controls, camera, setTarget, alt, az, lerp);
+                    
         
                     // Stop lerping once the camera has reached close to the target
                     if (!isLerping) {
@@ -115,9 +122,9 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
                 {orbitalCurves}
 
                 {/* Asteroids, comets and PHAs */}
-                {showNEO ? <InstancedAsteroids asteroidCount={asteroidCount} d={d} t={t} data={asteroidData} pha={false} size={asteroidSize}/> : null}
-                {!showNEO && !showPHA ? null : <InstancedAsteroids asteroidCount={PHACount} d={d} t={t} data={pha} pha={showPHA} size={asteroidSize}/>}
-                {showComet? <InstancedAsteroids asteroidCount={cometCount} d={d} t={t} data={cometData} pha={false} comet={true} size={asteroidSize}/> : null}
+                {showNEO ? <InstancedNEOS asteroidCount={asteroidCount} d={d} t={t} data={asteroidData} pha={false} size={asteroidSize}/> : null}
+                {!showNEO && !showPHA ? null : <InstancedNEOS asteroidCount={PHACount} d={d} t={t} data={pha} pha={showPHA} size={asteroidSize}/>}
+                {showComet? <InstancedNEOS asteroidCount={cometCount} d={d} t={t} data={cometData} pha={false} comet={true} size={asteroidSize}/> : null}
 
                 {/* Camera controls and animation */}
                 <OrbitControls target={target} ref={controls}/>
@@ -128,7 +135,7 @@ const AsteroidTracker = ({ speed, setViewDate, t, showNEO, showPHA, showComet, t
 
             {/* Text Labels */}
             {Object.entries(labeledBodies).map(([body,color]) => (
-                <div key={body} id={body} onClick={() => {followBodyClickEvent(speed, setAsteroidSize, setFollowingBody, setLerp, setZoomFactor, body, celestials, setDisplayData)}} className="absolute z-50 text-white hover:cursor-pointer" style={{color:color}}>
+                <div key={body} id={body} onClick={() => {followBodyClickEvent(speed, setAsteroidSize, setFollowingBody, setLerp, setZoomFactor, body, celestials, setDisplayData, setImpactData, setCloseApproachData);}} className="absolute z-50 text-white hover:cursor-pointer" style={{color:color}}>
                     {body}
                 </div>
             ))} 
